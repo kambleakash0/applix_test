@@ -1,0 +1,23 @@
+{
+    "editor.rulers": [
+        {
+            "column": 100,
+            "color": "#dddddd"
+        }
+    ],
+    "editor.defaultFormatter": "ms-python.black-formatter",
+    "editor.formatOnSaveMode": "file",
+    "editor.formatOnSave": true,
+    "files.autoSave": "afterDelay",
+    "files.autoSaveDelay": 100,
+    "black-formatter.args": [
+        "--line-length=100"
+    ],
+    "cSpell.words": [
+        "Akash",
+        "Kamble",
+    ],
+    "pylint.args": [
+        "--disable=C0111,W0718"
+    ],
+}
