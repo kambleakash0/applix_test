@@ -61,7 +61,7 @@ def check_alignment(lines, center_x, center_y, radii, tolerance=0.1):
 def upload_btn_click(input_img: gr.Image):
     # Load the image
     image = cv2.imread("tmp/saved_image.png")
-
+    
     # Get the dimensions of the image
     height, width, _ = image.shape
 
@@ -151,16 +151,16 @@ def save_btn_click(line_detected, aligned, output_img: gr.Image):
     output.save("saved_outputs/" + file_name)
 
     # clear the tmp folder
-    folder_to_clear = "tmp/"
-    for filename in os.listdir(folder_to_clear):
-        file_path = os.path.join(folder_to_clear, filename)
-        try:
-            if os.path.isfile(file_path) or os.path.islink(file_path):
-                os.unlink(file_path)
-            elif os.path.isdir(file_path):
-                shutil.rmtree(file_path)
-        except Exception as e:
-            print("Failed to delete %s. Reason: %s" % (file_path, e))
+    # folder_to_clear = "tmp/"
+    # for filename in os.listdir(folder_to_clear):
+    #     file_path = os.path.join(folder_to_clear, filename)
+    #     try:
+    #         if os.path.isfile(file_path) or os.path.islink(file_path):
+    #             os.unlink(file_path)
+    #         elif os.path.isdir(file_path):
+    #             shutil.rmtree(file_path)
+    #     except Exception as e:
+    #         print("Failed to delete %s. Reason: %s" % (file_path, e))
 
     return [
         gr.Image(),
