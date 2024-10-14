@@ -1,1 +1,4 @@
 gradio==5.0.2
+numpy==2.1.2
+opencv_python==4.10.0.84
+Pillow==10.4.0

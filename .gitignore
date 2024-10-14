@@ -265,10 +265,6 @@ pyrightconfig.json
 
 ## Custom files and folders
 ## files
-*.jpg
-*.JPG
-*.jpeg
-*.JPEG
 *.png
 *.webp
 

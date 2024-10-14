@@ -1,18 +1,19 @@
 import os
 import cv2
 import math
+import shutil
 
 import numpy as np
 import gradio as gr
 
 from PIL import Image
+from datetime import datetime
 
 
 def input_image_select(input_img: gr.Image):
     input_img = Image.fromarray(input_img)
     input_img.save("tmp/saved_image.png")
     return gr.Button(interactive=True)
-
 
 def input_image_clear():
     gr.Warning("Please provide an input image to start the process.")
@@ -116,34 +117,99 @@ def upload_btn_click(input_img: gr.Image):
     # Save the image if needed
     cv2.imwrite("tmp/output_with_circles.png", image)
 
-    return [gr.Image("tmp/output_with_circles.png", visible=True), gr.Button(visible=True)]
+    return [
+        line_detected,
+        aligned,
+        gr.Image("tmp/output_with_circles.png", visible=True),
+        gr.Button(visible=True)
+    ]
 
 
-def save_btn_click(output_img: gr.Image):
-    return
-
-
+def save_btn_click(line_detected, aligned, output_img: gr.Image):
+    current_datetime = datetime.now().strftime("%Y-%m-%d_%H-%M-%S_")
+    str_current_datetime = str(current_datetime)
+    if line_detected:
+        if aligned:
+            file_name = str_current_datetime + "aligned.png"
+        else:
+            file_name = str_current_datetime + "misaligned.png"
+    else:
+        file_name = str_current_datetime + "no-mark.png"
+    
+    output = Image.fromarray(output_img)
+    output.save('saved_outputs/' + file_name)
+    
+    #clear the tmp folder
+    folder_to_clear = 'tmp/'
+    for filename in os.listdir(folder_to_clear):
+        file_path = os.path.join(folder_to_clear, filename)
+        try:
+            if os.path.isfile(file_path) or os.path.islink(file_path):
+                os.unlink(file_path)
+            elif os.path.isdir(file_path):
+                shutil.rmtree(file_path)
+        except Exception as e:
+            print('Failed to delete %s. Reason: %s' % (file_path, e))
+    
+    return [
+        gr.Image(),
+        gr.Button(interactive=False),
+        gr.Image(visible=False),
+        gr.Button(visible=False)
+    ]
+    
 with gr.Blocks() as demo:
 
     demo.title = "Applix AI"
     gr.Markdown("# Applix AI demo")
 
+    ## UI Components
     input_image = gr.Image(mirror_webcam=False)
     upload_btn = gr.Button("Upload", variant="secondary", interactive=False)
     output_image = gr.Image(visible=False)
     save_btn = gr.Button("Save results", variant="primary", visible=False)
+    
+    ## State-storing variables
+    line_detected = gr.State(False)
+    aligned = gr.State(False)
 
     ## Event listener triggers for the input image
     # when input is given
-    input_image.input(fn=input_image_select, inputs=[input_image], outputs=[upload_btn])
+    input_image.change(
+        fn=input_image_select, 
+        inputs=[input_image], 
+        outputs=[upload_btn]
+    )
     # when input is cleared
-    input_image.clear(fn=input_image_clear, inputs=[], outputs=[upload_btn])
+    input_image.clear(
+        fn=input_image_clear, 
+        inputs=[], 
+        outputs=[upload_btn]
+    )
 
     ## Event listener for the upload button
-    upload_btn.click(fn=upload_btn_click, inputs=[input_image], outputs=[output_image, save_btn])
+    upload_btn.click(
+        fn=upload_btn_click, 
+        inputs=[input_image], 
+        outputs=[line_detected, aligned, output_image, save_btn]
+    )
 
     ## Event listener for the save button
-    save_btn.click(fn=save_btn_click, inputs=[output_image], outputs=[])
+    save_btn.click(
+        fn=save_btn_click, 
+        inputs=[line_detected, aligned, output_image], 
+        outputs=[input_image, upload_btn, output_image, save_btn]
+    )
+    
+    ## Examples on the homepage for quick test
+    examples = gr.Examples(
+        examples=[
+            ['sample_inputs/e1.jpg'],
+            ['sample_inputs/e2.jpg']
+        ],
+        inputs=[input_image]
+    )
+    
 
 
 if __name__ == "__main__":
