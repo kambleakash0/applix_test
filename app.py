@@ -15,37 +15,48 @@ def input_image_select(input_img: gr.Image):
     input_img.save("tmp/saved_image.png")
     return gr.Button(interactive=True)
 
+
 def input_image_clear():
     gr.Warning("Please provide an input image to start the process.")
-    return gr.Button(interactive=False)
+    return [
+        gr.Image(),
+        gr.Button(interactive=False),
+        gr.Image(visible=False),
+        gr.Button(visible=False),
+    ]
+
 
 def detect_lines(image, edges, min_length=50, max_gap=10):
     # Detect lines using Hough Line Transform
-    lines = cv2.HoughLinesP(edges, 1, np.pi / 180, 100, minLineLength=min_length, maxLineGap=max_gap)
+    lines = cv2.HoughLinesP(
+        edges, 1, np.pi / 180, 100, minLineLength=min_length, maxLineGap=max_gap
+    )
     return lines
+
 
 def check_alignment(lines, center_x, center_y, radii, tolerance=0.1):
     if lines is None:
         return False, False  # No line detected
-    
+
     # To check alignment, we will calculate the angle of the line and see if it's the same for all circles
     angles = []
-    
+
     for line in lines:
         for x1, y1, x2, y2 in line:
             # Compute angle of the line
             angle = math.atan2(y2 - y1, x2 - x1) * (180 / np.pi)
             angles.append(angle)
-    
+
     # Compute the average angle and compare with others (check alignment)
     avg_angle = np.mean(angles)
     deviation = np.std(angles)
-    
+
     # If deviation is within tolerance, consider lines as aligned
     aligned = deviation <= tolerance * avg_angle
-    
+
     # Return whether lines are detected and whether they are aligned
     return True, aligned
+
 
 def upload_btn_click(input_img: gr.Image):
     # Load the image
@@ -74,22 +85,22 @@ def upload_btn_click(input_img: gr.Image):
     radius2 = int(radius2 + radius1)
     radius3 = int(radius3 + radius2)
     radii = [radius1, radius2, radius3]
-    
+
     # Convert the image to grayscale
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     # cv2.imshow('grayscaled', gray)
     # cv2.waitKey(0)
     # cv2.destroyAllWindows()
-    
+
     blurred = cv2.GaussianBlur(gray, (5, 5), 0)
     # cv2.imshow('blurred', blurred)
     # cv2.waitKey(0)
     # cv2.destroyAllWindows()
-    
+
     # Detect edges using Canny edge detection
     edges = cv2.Canny(gray, 50, 150)
     # print(edges)
-    
+
     # Detect the white-ish thick lines using Hough Line Transform
     lines = detect_lines(image, edges)
 
@@ -121,7 +132,7 @@ def upload_btn_click(input_img: gr.Image):
         line_detected,
         aligned,
         gr.Image("tmp/output_with_circles.png", visible=True),
-        gr.Button(visible=True)
+        gr.Button(visible=True),
     ]
 
 
@@ -135,12 +146,12 @@ def save_btn_click(line_detected, aligned, output_img: gr.Image):
             file_name = str_current_datetime + "misaligned.png"
     else:
         file_name = str_current_datetime + "no-mark.png"
-    
+
     output = Image.fromarray(output_img)
-    output.save('saved_outputs/' + file_name)
-    
-    #clear the tmp folder
-    folder_to_clear = 'tmp/'
+    output.save("saved_outputs/" + file_name)
+
+    # clear the tmp folder
+    folder_to_clear = "tmp/"
     for filename in os.listdir(folder_to_clear):
         file_path = os.path.join(folder_to_clear, filename)
         try:
@@ -149,15 +160,16 @@ def save_btn_click(line_detected, aligned, output_img: gr.Image):
             elif os.path.isdir(file_path):
                 shutil.rmtree(file_path)
         except Exception as e:
-            print('Failed to delete %s. Reason: %s' % (file_path, e))
-    
+            print("Failed to delete %s. Reason: %s" % (file_path, e))
+
     return [
         gr.Image(),
         gr.Button(interactive=False),
         gr.Image(visible=False),
-        gr.Button(visible=False)
+        gr.Button(visible=False),
     ]
-    
+
+
 with gr.Blocks() as demo:
 
     demo.title = "Applix AI"
@@ -168,48 +180,37 @@ with gr.Blocks() as demo:
     upload_btn = gr.Button("Upload", variant="secondary", interactive=False)
     output_image = gr.Image(visible=False)
     save_btn = gr.Button("Save results", variant="primary", visible=False)
-    
+
     ## State-storing variables
     line_detected = gr.State(False)
     aligned = gr.State(False)
 
     ## Event listener triggers for the input image
     # when input is given
-    input_image.change(
-        fn=input_image_select, 
-        inputs=[input_image], 
-        outputs=[upload_btn]
-    )
+    input_image.change(fn=input_image_select, inputs=[input_image], outputs=[upload_btn])
     # when input is cleared
     input_image.clear(
-        fn=input_image_clear, 
-        inputs=[], 
-        outputs=[upload_btn]
+        fn=input_image_clear, inputs=[], outputs=[input_image, upload_btn, output_image, save_btn]
     )
 
     ## Event listener for the upload button
     upload_btn.click(
-        fn=upload_btn_click, 
-        inputs=[input_image], 
-        outputs=[line_detected, aligned, output_image, save_btn]
+        fn=upload_btn_click,
+        inputs=[input_image],
+        outputs=[line_detected, aligned, output_image, save_btn],
     )
 
     ## Event listener for the save button
     save_btn.click(
-        fn=save_btn_click, 
-        inputs=[line_detected, aligned, output_image], 
-        outputs=[input_image, upload_btn, output_image, save_btn]
+        fn=save_btn_click,
+        inputs=[line_detected, aligned, output_image],
+        outputs=[input_image, upload_btn, output_image, save_btn],
     )
-    
+
     ## Examples on the homepage for quick test
     examples = gr.Examples(
-        examples=[
-            ['sample_inputs/e1.jpg'],
-            ['sample_inputs/e2.jpg']
-        ],
-        inputs=[input_image]
+        examples=[["sample_inputs/e1.jpg"], ["sample_inputs/e2.jpg"]], inputs=[input_image]
     )
-    
 
 
 if __name__ == "__main__":
