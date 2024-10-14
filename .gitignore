@@ -265,17 +265,12 @@ pyrightconfig.json
 
 ## Custom files and folders
 ## files
-*.db
-*.csv
-*.doc
-*.docx
-*.pdf
-*.pkl
-*.txt
-*.xls
-*.xlsx
-*.yml
-*.json
+*.jpg
+*.JPG
+*.jpeg
+*.JPEG
+*.png
+*.webp
 
 # MacOS specific
 .DS_Store
@@ -283,7 +278,6 @@ pyrightconfig.json
 ## folders
 .history/
 data/
-tmp/
 
 ## key files
 *.env
