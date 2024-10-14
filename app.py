@@ -10,8 +10,8 @@ from PIL import Image
 from datetime import datetime
 
 
-def input_image_select(input_img: gr.Image):
-    input_img = Image.fromarray(input_img)
+def input_image_select(input_image: gr.Image):
+    input_img = Image.fromarray(input_image)
     input_img.save("tmp/saved_image.png")
     return gr.Button(interactive=True)
 
