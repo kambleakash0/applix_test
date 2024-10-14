@@ -263,3 +263,27 @@ pyrightconfig.json
 
 # End of https://www.toptal.com/developers/gitignore/api/python,pycharm+all
 
+## Custom files and folders
+## files
+*.db
+*.csv
+*.doc
+*.docx
+*.pdf
+*.pkl
+*.txt
+*.xls
+*.xlsx
+*.yml
+*.json
+
+# MacOS specific
+.DS_Store
+
+## folders
+.history/
+data/
+tmp/
+
+## key files
+*.env
