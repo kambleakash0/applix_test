@@ -208,9 +208,9 @@ with gr.Blocks() as demo:
     )
 
     ## Examples on the homepage for quick test
-    examples = gr.Examples(
-        examples=[["sample_inputs/e1.jpg"], ["sample_inputs/e2.jpg"]], inputs=[input_image]
-    )
+    # examples = gr.Examples(
+    #     examples=[["sample_inputs/e1.jpg"], ["sample_inputs/e2.jpg"]], inputs=[input_image]
+    # )
 
 
 if __name__ == "__main__":
