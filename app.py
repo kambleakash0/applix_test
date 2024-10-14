@@ -98,8 +98,12 @@ def upload_btn_click(input_img: gr.Image):
     # cv2.destroyAllWindows()
 
     # Detect edges using Canny edge detection
-    edges = cv2.Canny(gray, 50, 150)
-    # print(edges)
+    edges = cv2.Canny(image=blurred, threshold1=100, threshold2=200, L2gradient=True)
+    # cv2.imshow('grayscaled', gray)
+    # cv2.imshow('blurred', blurred)
+    # cv2.imshow('edge', edges)
+    # cv2.waitKey(0) 
+    # cv2.destroyAllWindows()
 
     # Detect the white-ish thick lines using Hough Line Transform
     lines = detect_lines(image, edges)
